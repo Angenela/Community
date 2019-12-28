@@ -1,11 +1,11 @@
 package com.example.demo.provider;
 
 import com.alibaba.fastjson.JSON;
+import com.example.demo.SkipHttps.getUnsafeClient;
 import com.example.demo.dto.AccessTokenDTO;
 import com.example.demo.dto.GitHubUser;
 import okhttp3.*;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
 @Component
@@ -16,7 +16,7 @@ public class GitHubProvider {
     //用于获取accessToken用与和GitHub交互获取用户信息
     public String getAccessToken(AccessTokenDTO accessTokenDTO) {
         MediaType mediaType = MediaType.get("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client =  getUnsafeClient.getUnsafeOkHttpClient();           //原本为：new OkHttpClient();跳过https认证
         RequestBody body = RequestBody.create(mediaType, JSON.toJSONString(accessTokenDTO));
         Request request = new Request.Builder()             //发送请求
                 .url("https://github.com/login/oauth/access_token")
@@ -34,7 +34,7 @@ public class GitHubProvider {
 
     //获取用户信息
     public GitHubUser getGiHubUser(String accessToken) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = getUnsafeClient.getUnsafeOkHttpClient();
         Request request = new Request.Builder()
                 .url("https://api.github.com/user?access_token=" + accessToken)
                 .build();
