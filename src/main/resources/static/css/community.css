@@ -11,3 +11,13 @@ body{
     float: right;
     margin-bottom: 15px;
 }
+
+.media-object{
+    width: 61px;
+    height: 61px;
+}
+
+.community-menu{
+    color: #999999;
+    font-size: 13px;
+}
