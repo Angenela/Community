@@ -2,6 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.dto.PaginationDTO;
 import com.example.demo.dto.QuestionDTO;
+import com.example.demo.exeprion.CustomExeption;
+import com.example.demo.exeprion.CustomExeptionCode;
+import com.example.demo.mapper.QuestionExtMapper;
 import com.example.demo.mapper.QuestionMapper;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.Question;
@@ -20,7 +23,8 @@ public class QuestionService {
 
     @Autowired
     private QuestionMapper questionMapper;
-
+    @Autowired
+    private QuestionExtMapper questionExtMapper;
     @Autowired
     private UserMapper userMapper;
 
@@ -88,6 +92,9 @@ public class QuestionService {
 //        QuestionDTO questionDTO = new QuestionDTO();
 //        BeanUtils.copyProperties(questions.get(0),questionDTO);
         QuestionDTO questionDTO = questionMapper.getById(id);
+        if(questionDTO == null){
+            throw new CustomExeption(CustomExeptionCode.QUESTION_NOT_FOUND);
+        }
         User user = userMapper.selectByPrimaryKey(questionDTO.getCreator());
         questionDTO.setUser(user);
 
@@ -108,25 +115,17 @@ public class QuestionService {
             QuestionExample questionExample = new QuestionExample();
             questionExample.createCriteria()
                     .andIdEqualTo(question.getId());
-            questionMapper.updateByExampleSelective(question,questionExample);
+            int value = questionMapper.updateByExampleSelective(question,questionExample);
+            if(value != 1){
+                throw new CustomExeption(CustomExeptionCode.QUESTION_NOT_FOUND);
+            }
         }
     }
 
-    public void viewAdd(Integer id) {
-        QuestionDTO questionDTO = questionMapper.getById(id);
-        User creater = userMapper.selectByPrimaryKey(questionDTO.getCreator());
-
-
-        if(creater.getId().equals(questionDTO.getCreator())){
-            return;
-        }else{
-            questionDTO.setViewCount(questionDTO.getViewCount()+1);
-            QuestionExample questionExample = new QuestionExample();
-            questionExample.createCriteria()
-                    .andIdEqualTo(questionDTO.getId());
-            Question question = new Question();
-            BeanUtils.copyProperties(questionDTO,question);
-            questionMapper.updateByExampleSelective(question,questionExample);
-        }
+    public void incView(Integer id) {
+        Question question = new Question();
+        question.setId(id);
+        question.setViewCount(1);
+        questionExtMapper.incView(question);
     }
 }

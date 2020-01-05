@@ -1,7 +1,6 @@
 package com.example.demo.Controller;
 
 import com.example.demo.dto.QuestionDTO;
-import com.example.demo.model.User;
 import com.example.demo.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,9 +23,11 @@ public class QuestionController {
 
         QuestionDTO questionDTO = questionService.getById(id);
 
+        questionService.incView(id);
+
         model.addAttribute("question",questionDTO);
 
-        questionService.viewAdd(id);
+
 
         return "question";
     }
